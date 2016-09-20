@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Timer exposing (..)
 
 import Html exposing (Html, span, text)
 import Html.Attributes exposing (class)
@@ -16,6 +16,10 @@ main =
         , subscriptions = subscriptions
         , view = view
         }
+
+
+
+-- CONSTANTS
 
 
 second : Int
@@ -43,6 +47,10 @@ divMod dividend divisor =
     ( dividend // divisor, dividend % divisor )
 
 
+
+-- MODEL
+
+
 type alias Model =
     { seconds : Int
     , hoursThreshold : Int
@@ -56,8 +64,15 @@ init flags =
     ( flags, Cmd.none )
 
 
+
+-- UPDATE
+
+
 type Msg
     = Tick Time
+
+
+port timerExpired : String -> Cmd msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,12 +82,20 @@ update msg model =
             ( { model | seconds = model.seconds - 1 }, Cmd.none )
 
 
+
+-- SUBSCRIPTIONS
+
+
 subscriptions : Model -> Sub Msg
 subscriptions { seconds } =
     if seconds == 0 then
         Sub.none
     else
         every Time.second Tick
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
