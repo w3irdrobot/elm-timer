@@ -1,6 +1,7 @@
 module Main exposing (..)
 
-import Html exposing (Html, div, span, text)
+import Html exposing (Html, span, text)
+import Html.Attributes exposing (class)
 import Html.App exposing (programWithFlags)
 import String exposing (padLeft)
 import List exposing (map)
@@ -83,13 +84,11 @@ view { seconds, hoursThreshold, formatUnderThreshold } =
             seconds // day
     in
         if seconds == 0 then
-            div [] [ text "This promotion has ended." ]
+            span [ class "timer" ] [ text "This promotion has ended." ]
         else if hours >= hoursThreshold then
-            div [] [ text ("Starts in " ++ (toString days) ++ " days") ]
+            span [ class "timer" ] [ text ("Starts in " ++ (toString days) ++ " days") ]
         else
-            div []
-                [ span [] [ text (timerView seconds formatUnderThreshold) ]
-                ]
+            span [ class "timer" ] [ text (timerView seconds formatUnderThreshold) ]
 
 
 timerView : Int -> String -> String
@@ -100,13 +99,18 @@ timerView rawSeconds format =
 
         ( minutes, seconds ) =
             divMod remainingSecs minute
-
-        [ pHours, pMinutes, pSeconds ] =
-            [ hours, minutes, seconds ]
-                |> map toString
-                |> map (padLeft 2 '0')
     in
         format
-            |> replace All (regex "{H}") (\_ -> pHours)
-            |> replace All (regex "{M}") (\_ -> pMinutes)
-            |> replace All (regex "{S}") (\_ -> pSeconds)
+            |> replaceInFormat "{H}" hours
+            |> replaceInFormat "{M}" minutes
+            |> replaceInFormat "{S}" seconds
+
+
+replaceInFormat : String -> Int -> String -> String
+replaceInFormat reg num format =
+    replace All (regex reg) (\_ -> stringifyAndPad num) format
+
+
+stringifyAndPad : Int -> String
+stringifyAndPad num =
+    padLeft 2 '0' (toString num)
