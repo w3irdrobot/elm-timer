@@ -47,6 +47,7 @@ type alias Model =
     { seconds : Int
     , hoursThreshold : Int
     , formatUnderThreshold : String
+    , formatOverThreshold : String
     }
 
 
@@ -75,7 +76,7 @@ subscriptions { seconds } =
 
 
 view : Model -> Html Msg
-view { seconds, hoursThreshold, formatUnderThreshold } =
+view { seconds, hoursThreshold, formatUnderThreshold, formatOverThreshold } =
     let
         hours =
             seconds // hour
@@ -86,7 +87,7 @@ view { seconds, hoursThreshold, formatUnderThreshold } =
         if seconds == 0 then
             span [ class "timer" ] [ text "This promotion has ended." ]
         else if hours >= hoursThreshold then
-            span [ class "timer" ] [ text ("Starts in " ++ (toString days) ++ " days") ]
+            span [ class "timer" ] [ text (replaceInFormat "{D}" days 1 formatOverThreshold) ]
         else
             span [ class "timer" ] [ text (timerView seconds formatUnderThreshold) ]
 
@@ -101,16 +102,16 @@ timerView rawSeconds format =
             divMod remainingSecs minute
     in
         format
-            |> replaceInFormat "{H}" hours
-            |> replaceInFormat "{M}" minutes
-            |> replaceInFormat "{S}" seconds
+            |> replaceInFormat "{H}" hours 2
+            |> replaceInFormat "{M}" minutes 2
+            |> replaceInFormat "{S}" seconds 2
 
 
-replaceInFormat : String -> Int -> String -> String
-replaceInFormat reg num format =
-    replace All (regex reg) (\_ -> stringifyAndPad num) format
+replaceInFormat : String -> Int -> Int -> String -> String
+replaceInFormat reg num padLength format =
+    replace All (regex reg) (\_ -> stringifyAndPad padLength num) format
 
 
-stringifyAndPad : Int -> String
-stringifyAndPad num =
-    padLeft 2 '0' (toString num)
+stringifyAndPad : Int -> Int -> String
+stringifyAndPad padLength num =
+    padLeft padLength '0' (toString num)
