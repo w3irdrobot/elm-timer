@@ -77,9 +77,19 @@ port timerExpired : String -> Cmd msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        Tick _ ->
-            ( { model | seconds = model.seconds - 1 }, Cmd.none )
+    let
+        seconds =
+            model.seconds - 1
+
+        command =
+            if seconds <= 0 then
+                timerExpired "stop"
+            else
+                Cmd.none
+    in
+        case msg of
+            Tick _ ->
+                ( { model | seconds = seconds }, command )
 
 
 
