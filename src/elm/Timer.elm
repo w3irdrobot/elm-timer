@@ -7,6 +7,7 @@ import String exposing (padLeft)
 import List exposing (map)
 import Time exposing (Time, every)
 import Regex exposing (Regex, HowMany(All), regex, replace)
+import Maybe exposing (withDefault)
 
 
 main =
@@ -59,9 +60,23 @@ type alias Model =
     }
 
 
-init : Model -> ( Model, Cmd Msg )
+type alias Flags =
+    { seconds : Int
+    , hoursThreshold : Maybe Int
+    , formatUnderThreshold : Maybe String
+    , formatOverThreshold : Maybe String
+    }
+
+
+init : Flags -> ( Model, Cmd Msg )
 init flags =
-    ( flags, Cmd.none )
+    ( { seconds = flags.seconds
+      , hoursThreshold = withDefault 48 flags.hoursThreshold
+      , formatUnderThreshold = withDefault "{H}:{M}:{S}" flags.formatUnderThreshold
+      , formatOverThreshold = withDefault "Starts in {D} days" flags.formatOverThreshold
+      }
+    , Cmd.none
+    )
 
 
 
