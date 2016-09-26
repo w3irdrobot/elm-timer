@@ -97,7 +97,7 @@ update msg model =
             model.seconds - 1
 
         command =
-            if seconds <= 0 then
+            if seconds == 0 then
                 timerExpired "stop"
             else
                 Cmd.none
